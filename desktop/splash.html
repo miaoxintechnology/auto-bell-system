@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { width: 100%; height: 100%; margin: 0; background: #f3f4f6; overflow: hidden; }
+  * { box-sizing: border-box; }
+  body { font: 12px "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", sans-serif; color: #1f2937; }
+  .card {
+    position: absolute; inset: 8px; border-radius: 14px;
+    background: #ffffff; border: 1px solid #dbe2ea;
+    box-shadow: 0 14px 38px rgba(8, 22, 40, .28);
+    display: flex; align-items: center; gap: 14px; padding: 20px 22px;
+  }
+  .logo { width: 56px; height: 56px; border-radius: 14px; }
+  .title { font-size: 17px; font-weight: 600; letter-spacing: .5px; }
+  .sub { color: #6b7280; margin-top: 4px; font-size: 11px; }
+  .status { display: flex; align-items: center; gap: 7px; margin-top: 12px; color: #0f6cbd; font-size: 11px; }
+  .spinner {
+    width: 12px; height: 12px; border: 2px solid #cfe0f5; border-top-color: #0f6cbd;
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .version { position: absolute; right: 22px; top: 22px; color: #9aa4b2; font-size: 10px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="logo" src="assets/app.png" alt="">
+    <div>
+      <div class="title">自动铃声系统</div>
+      <div class="sub">正在启动本地铃声服务…</div>
+      <div class="status"><span class="spinner"></span><span>准备后台调度与音频设备</span></div>
+    </div>
+    <div class="version">v1.0.0</div>
+  </div>
+</body>
+</html>

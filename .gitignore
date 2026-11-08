@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+artifacts/
+*.log
+backend-dist/
+build-backend/
+dist-electron/
+desktop/node_modules/
+desktop/AutoBellData/
+AutoBellData/
+.electron-profile/
+test-backend-data/
+.tools/

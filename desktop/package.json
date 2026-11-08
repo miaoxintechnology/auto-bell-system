@@ -1,0 +1,64 @@
+{
+  "name": "autobell-desktop",
+  "version": "1.0.0",
+  "description": "自动铃声系统 Electron 桌面客户端",
+  "main": "main.js",
+  "author": "AutoBell",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "33.3.1",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.autobell.system",
+    "productName": "自动铃声系统",
+    "copyright": "Copyright © 2026 AutoBell",
+    "directories": {
+      "output": "../dist-electron",
+      "buildResources": "assets"
+    },
+    "electronDist": "node_modules/electron/dist",
+    "npmRebuild": false,
+    "files": [
+      "main.js",
+      "preload.js",
+      "splash.html",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend-dist/AutoBellBackend",
+        "to": "backend",
+        "filter": ["**/*"]
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/app.ico",
+      "artifactName": "自动铃声系统-${version}-安装程序.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "自动铃声系统",
+      "installerIcon": "assets/app.ico",
+      "uninstallerIcon": "assets/app.ico",
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "installerLanguages": ["zh_CN"]
+    }
+  }
+}

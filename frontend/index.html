@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>自动铃声系统</title>
+  <link rel="icon" href="/static/assets/app.png">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="/static/assets/app.png" alt="">
+      <div class="brand-text">
+        <span class="app-title">自动铃声系统</span>
+        <span class="version">v1.0.0</span>
+      </div>
+    </div>
+    <div class="top-meta">
+      <span id="todaySummary" class="muted">今日 0 条 · 已响 0 · 待响 0</span>
+      <span class="vline"></span>
+      <span id="statusDot" class="dot"></span>
+      <span id="statusText" class="status-text">自动运行中</span>
+      <span class="vline"></span>
+      <span id="dateText" class="muted"></span>
+      <span id="clock" class="clock">00:00:00</span>
+      <div class="window-controls" id="windowControls">
+        <button class="win-btn" id="winMin" title="最小化" aria-label="最小化"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        <button class="win-btn" id="winMax" title="最大化" aria-label="最大化"><svg viewBox="0 0 24 24" class="win-max-icon"><rect x="5" y="5" width="14" height="14" rx="1"/></svg></button>
+        <button class="win-btn win-close" id="winClose" title="关闭" aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <header class="toolbar">
+    <button class="btn primary" id="newScheduleBtn">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>新建铃声
+    </button>
+    <button class="btn" id="importAudioBtn">
+      <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>导入音频
+    </button>
+    <button class="btn" id="pauseBtn">
+      <svg viewBox="0 0 24 24" class="pause-icon"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span>暂停自动铃声</span>
+    </button>
+    <span class="vline"></span>
+    <span class="muted">下一铃：</span>
+    <span id="nextText" class="next-text">暂无后续铃声</span>
+    <span class="spacer"></span>
+    <span class="hint">所有数据仅保存在本机</span>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="schedule" role="tab">作息表</button>
+    <button class="tab" data-tab="audio" role="tab">音频库</button>
+    <button class="tab" data-tab="settings" role="tab">设置</button>
+  </nav>
+
+  <main class="workspace">
+    <section class="page active" id="page-schedule" role="tabpanel">
+      <div class="filter-row">
+        <input id="scheduleSearch" class="input search" type="search" placeholder="搜索名称、时间或音频…">
+        <select id="weekdayFilter" class="select">
+          <option value="0">全部星期</option>
+          <option value="-1">今天</option>
+          <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+          <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
+        </select>
+        <label class="check"><input id="enabledOnly" type="checkbox"> 仅显示启用</label>
+        <span class="spacer"></span>
+        <span id="scheduleCount" class="count"></span>
+      </div>
+      <div class="action-row">
+        <button class="btn small" id="previewScheduleBtn" disabled>
+          <svg viewBox="0 0 24 24" class="fill"><path d="M8 5.2 19 12 8 18.8z"/></svg>试听
+        </button>
+        <button class="btn small" id="editScheduleBtn" disabled>
+          <svg viewBox="0 0 24 24"><path d="M14.5 4.5 19.5 9.5 8 21H3v-5z"/><path d="m12.8 6.2 5 5"/></svg>编辑
+        </button>
+        <button class="btn small" id="deleteScheduleBtn" disabled>
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/><path d="M10 11v5M14 11v5"/></svg>删除
+        </button>
+        <span class="spacer"></span>
+        <div class="menu-wrap">
+          <button class="btn small" id="moreBtn">更多操作 ▾</button>
+          <div class="menu" id="moreMenu" hidden>
+            <button data-action="template">套用示例作息</button>
+            <div class="menu-sep"></div>
+            <button data-action="clear" class="danger-text">清空全部铃声</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table schedule-table" id="scheduleTable">
+          <colgroup><col class="c-time"><col class="c-name"><col class="c-week"><col class="c-audio"><col class="c-next"><col class="c-status"><col class="c-enabled"></colgroup>
+          <thead><tr><th>时间</th><th>名称</th><th>重复</th><th>音频</th><th>下次响铃</th><th>状态</th><th class="center">启用</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty-state" id="scheduleEmpty" hidden>
+          <strong id="emptyTitle">还没有铃声安排</strong>
+          <span id="emptyDesc">新建一条铃声，或先套用一套标准作息作为起点。</span>
+          <div class="empty-actions" id="emptyActions">
+            <button class="btn primary" id="emptyNewBtn">新建铃声</button>
+            <button class="btn" id="emptyTemplateBtn">套用示例作息</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-audio" role="tabpanel">
+      <div class="filter-row">
+        <input id="audioSearch" class="input search" type="search" placeholder="搜索音频名称…">
+        <button class="btn primary" id="audioImportBtn">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>导入音频
+        </button>
+        <button class="btn small" id="previewAudioBtn" disabled>
+          <svg viewBox="0 0 24 24" class="fill"><path d="M8 5.2 19 12 8 18.8z"/></svg>试听
+        </button>
+        <button class="btn small" id="deleteAudioBtn" disabled>
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/><path d="M10 11v5M14 11v5"/></svg>删除
+        </button>
+        <span class="spacer"></span>
+        <span id="audioCount" class="count"></span>
+      </div>
+      <div class="hint-row">可将音频文件直接拖入此页面导入；支持 WAV、MP3、OGG、FLAC、M4A、AAC、WMA。</div>
+      <div class="table-wrap" id="audioDropZone">
+        <table class="data-table audio-table" id="audioTable">
+          <colgroup><col class="a-name"><col class="a-format"><col class="a-size"><col class="a-usage"><col class="a-type"><col class="a-source"><col class="a-status"></colgroup>
+          <thead><tr><th>名称</th><th class="center">格式</th><th class="center">大小</th><th class="center">使用于</th><th class="center">类型</th><th>来源文件</th><th class="center">状态</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty-state" id="audioEmpty" hidden>
+          <strong>音频库还是空的</strong>
+          <span>导入一个音频文件，就可以把它安排到作息里。</span>
+          <div class="empty-actions"><button class="btn primary" id="emptyAudioBtn">导入音频</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page settings-page" id="page-settings" role="tabpanel">
+      <div class="settings-column">
+        <section class="group">
+          <h2>声音</h2>
+          <div class="volume-row">
+            <label for="volumeSlider">主音量</label>
+            <input id="volumeSlider" type="range" min="0" max="100" step="1" value="72">
+            <span id="volumeValue" class="volume-value">72%</span>
+            <button class="btn" id="testSoundBtn">▶ 试听内置铃声</button>
+          </div>
+        </section>
+
+        <section class="group">
+          <h2>服务与访问</h2>
+          <p class="muted">后端在本机运行，浏览器只负责界面。关闭浏览器不会停止铃声服务；在启动后端的终端按 Ctrl+C 才会停止。</p>
+          <div class="form-line"><span>访问地址</span><code id="serverUrl">http://127.0.0.1:8765</code></div>
+          <p class="tiny">系统通知已关闭：铃声播放时不会弹 Windows 通知或托盘气泡，只在底部状态栏和运行日志中记录。</p>
+        </section>
+
+        <section class="group">
+          <h2>配置文件与数据转移</h2>
+          <p class="muted">作息、音频和设置都保存在 config.json 中。修改并保存后，重载配置即可生效。</p>
+          <div class="path-row">
+            <input id="configPath" class="input" readonly>
+            <button class="btn" id="editConfigBtn">编辑配置文件</button>
+            <button class="btn" id="reloadConfigBtn">
+              <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>重新加载
+            </button>
+          </div>
+          <p class="tiny">数据转移：导出的 ZIP 包含 config.json 和全部音频。导入会替换当前作息、音频库和设置，导入前自动备份当前数据。</p>
+          <div class="action-row left">
+            <button class="btn" id="exportDataBtn">
+              <svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>导出数据包
+            </button>
+            <button class="btn" id="importDataBtn">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>导入数据包
+            </button>
+          </div>
+        </section>
+
+        <section class="group">
+          <h2>数据目录</h2>
+          <p class="muted">配置、导入的音频和运行日志都保存在本机，不会上传到网络。</p>
+          <div class="path-row"><input id="dataPath" class="input" readonly></div>
+        </section>
+
+        <section class="group">
+          <h2>最近运行日志</h2>
+          <pre id="logView" class="log-view"></pre>
+          <div class="form-line"><span id="logCount" class="tiny"></span><span class="spacer"></span><span class="tiny">日志按 768KB 轮转</span></div>
+        </section>
+
+        <section class="group">
+          <h2>关于</h2>
+          <p><strong>自动铃声系统 1.0.0</strong></p>
+          <p class="muted">前后端分离的校园打铃系统。后端 Python/FastAPI，前端 Web GUI，完全离线运行。</p>
+          <p class="tiny">Python · FastAPI · pygame/SDL_mixer · 本地数据</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="statusLast">就绪</span>
+    <span class="spacer"></span>
+    <span id="statusCount"></span>
+    <span id="statusVolume"></span>
+  </footer>
+</div>
+
+<input type="file" id="audioFileInput" accept=".wav,.mp3,.ogg,.flac,.m4a,.aac,.wma" multiple hidden>
+<input type="file" id="importFileInput" accept=".zip" hidden>
+
+<div class="modal" id="scheduleModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="scheduleModalTitle">添加一条铃声</h2><button class="icon-btn" data-close="scheduleModal">×</button></div>
+    <form id="scheduleForm">
+      <div class="form-row two">
+        <div class="field"><label>时间</label><div class="time-picker"><select id="hourSelect"></select><span>:</span><select id="minuteSelect"></select></div></div>
+        <div class="field grow"><label for="scheduleName">名称</label><input id="scheduleName" class="input" maxlength="60" placeholder="例如：第一节课、课间操、放学铃"></div>
+      </div>
+      <div class="field">
+        <label>星期</label>
+        <div class="days" id="dayChecks"></div>
+        <div class="shortcuts"><span class="tiny">快捷选择：</span><button type="button" class="link-btn" data-days="1,2,3,4,5">工作日</button><button type="button" class="link-btn" data-days="1,2,3,4,5,6,7">每天</button><button type="button" class="link-btn" data-days="">清空</button></div>
+      </div>
+      <div class="field">
+        <label for="scheduleAudio">音频</label>
+        <div class="audio-select-row"><select id="scheduleAudio" class="select grow"></select><button type="button" class="btn" id="previewModalAudio">▶ 试听</button><button type="button" class="btn" id="importModalAudio">导入</button></div>
+      </div>
+      <label class="check"><input id="scheduleEnabled" type="checkbox" checked> 保存后启用</label>
+      <div id="scheduleError" class="form-error" hidden></div>
+      <div class="modal-footer"><button type="button" class="btn" data-close="scheduleModal">取消</button><button type="submit" class="btn primary">保存</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="confirmModal" hidden>
+  <div class="modal-card confirm-card">
+    <div class="modal-head"><h2 id="confirmTitle">确认</h2></div>
+    <p id="confirmMessage" class="muted"></p>
+    <div class="modal-footer"><button class="btn" id="confirmCancel">取消</button><button class="btn danger" id="confirmOk">确定</button></div>
+  </div>
+</div>
+
+<div class="modal" id="configModal" hidden>
+  <div class="modal-card config-card">
+    <div class="modal-head"><h2>编辑配置文件</h2><button class="icon-btn" data-close="configModal">×</button></div>
+    <p class="tiny">JSON 格式，保存后会严格校验并立即重新加载。</p>
+    <textarea id="configEditor" class="config-editor" spellcheck="false"></textarea>
+    <div id="configError" class="form-error" hidden></div>
+    <div class="modal-footer"><button class="btn" data-close="configModal">取消</button><button class="btn primary" id="saveConfigBtn">保存并应用</button></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

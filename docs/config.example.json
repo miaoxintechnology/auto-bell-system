@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "audios": [
+    {
+      "id": "builtin-up",
+      "name": "标准上课铃",
+      "filename": "builtin_up.wav",
+      "builtin": true,
+      "source_name": "内置合成钟声",
+      "added_at": "2026-01-01T00:00:00",
+      "size_bytes": 0
+    },
+    {
+      "id": "builtin-down",
+      "name": "标准下课铃",
+      "filename": "builtin_down.wav",
+      "builtin": true,
+      "source_name": "内置合成钟声",
+      "added_at": "2026-01-01T00:00:00",
+      "size_bytes": 0
+    }
+  ],
+  "schedules": [
+    {
+      "id": "example-0800",
+      "time": "08:00",
+      "name": "第一节课",
+      "audio_id": "builtin-up",
+      "weekdays": [1, 2, 3, 4, 5],
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "volume": 72,
+    "paused": false
+  }
+}
