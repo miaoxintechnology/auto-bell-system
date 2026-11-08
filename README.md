@@ -63,13 +63,10 @@ powershell -ExecutionPolicy Bypass -File .\run.ps1
 
 ## 桌面 EXE
 
-桌面版把「Electron 窗口 + 内置 Python 后端 + Web GUI」打包成一个安装程序：
+桌面版把「Electron 窗口 + 内置 Python 后端 + Web GUI」打包成一个安装程序。
+安装文件为 `AutoBellSystem-Setup-1.0.0.exe`，属于构建产物，不纳入 Git 仓库，按下方步骤生成。
 
-```text
-交付包：AutoBellSystem-Setup-1.0.0.exe
-```
-
-这个交付 EXE 是一个单文件安装引导器：内置真正的 Inno Setup 安装程序，
+这个安装 EXE 是一个单文件安装引导器：内置真正的 Inno Setup 安装程序，
 启动时把它释放到 `%LOCALAPPDATA%\AutoBellSetupCache`，并把安装器的
 `TEMP`/`TMP` 指向该目录，避免 Windows 用户 Temp 目录权限异常导致
 `Setup was unable to create the directory ... Error 5`。
